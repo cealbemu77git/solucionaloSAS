@@ -1,0 +1,10 @@
+package dataConnection;
+
+public class DataConsultaCliente {
+	
+	Conection conexion = new Conection();
+	Conection con;
+	
+	
+
+}

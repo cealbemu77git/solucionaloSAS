@@ -1,0 +1,5 @@
+package objetoUsuario;
+
+public interface ShowTableBase {
+
+}

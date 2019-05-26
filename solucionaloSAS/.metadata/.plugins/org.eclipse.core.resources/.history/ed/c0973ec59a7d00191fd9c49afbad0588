@@ -1,0 +1,604 @@
+package Interfaz;
+
+import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import objetoUsuario.ObjetoRol;
+import objetoUsuario.ObjetoUsuario;
+import dataConnection.DataConnection;
+import dataConnection.DataRol;
+
+public class ViewUsuario extends JFrame {
+
+	private JPanel contentPane_usuario;
+	private JTable table_usuario;
+	private ArrayList<ObjetoUsuario> objetoUsuarioLis;
+	private static DataConnection conexion = new DataConnection();
+	private ArrayList<ObjetoRol> objetoRolLis;
+	private static DataRol conexionRol = new DataRol();
+	private JTextField txt_identificacion;
+	private JTextField txt_pri_nombre;
+	private JTextField txt_seg_nombre;
+	private JTextField txt_pri_apelli;
+	private JTextField txt_seg_apell;
+	private JTextField txt_user;
+	private JTextField txt_passw;
+	private JTextField txt_edad;
+	private JTextField txt_direccion;
+	private JTextField txt_telefono;
+	boolean crear;
+	ViewUsuario a;
+	private JTextField txt_id;
+	private JComboBox comboBox_RO;
+	
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ViewUsuario frame = new ViewUsuario();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+
+	/**
+	 * Create the frame.
+	 */
+	public ViewUsuario() {
+		setTitle("Ventana de Usuarios ");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 1155, 504);
+		contentPane_usuario = new JPanel();
+		contentPane_usuario.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane_usuario);
+		contentPane_usuario.setLayout(null);
+		
+		JScrollPane scrollPane_usuario = new JScrollPane();
+		scrollPane_usuario.setBounds(10, 259, 1119, 153);
+		contentPane_usuario.add(scrollPane_usuario);
+		
+		//se mostraran los datos de la DB en la tabla de usuarios 
+		table_usuario = new JTable();
+		
+		/**
+	     * evento clic para subir los datos de la tabla a los campos de texto 
+	     *
+	     * @return
+	     */
+		table_usuario.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				limpiar();
+				int col = table_usuario.getSelectedRow();
+				txt_id.setText(table_usuario.getModel().getValueAt(col, 0).toString());
+				txt_user.setText(table_usuario.getModel().getValueAt(col, 1).toString());
+				txt_passw.setText(table_usuario.getModel().getValueAt(col, 2).toString());
+				
+				txt_identificacion.setText(table_usuario.getModel().getValueAt(col, 3).toString());
+				txt_pri_nombre.setText(table_usuario.getModel().getValueAt(col, 5).toString());
+				txt_seg_nombre.setText(table_usuario.getModel().getValueAt(col, 6).toString());
+				txt_pri_apelli.setText(table_usuario.getModel().getValueAt(col, 7).toString());
+				txt_seg_apell.setText(table_usuario.getModel().getValueAt(col, 8).toString());
+				txt_edad.setText(table_usuario.getModel().getValueAt(col, 9).toString());
+				txt_direccion.setText(table_usuario.getModel().getValueAt(col, 10).toString());
+				txt_telefono.setText(table_usuario.getModel().getValueAt(col, 11).toString());
+				
+				
+			}
+		});
+		
+		/**
+	     * campos de la tabla 
+	     *
+	     * @return
+	     */
+		table_usuario.setModel(new DefaultTableModel(
+				
+			new Object[][] {
+			},
+			new String[] {		
+				"Id", "Usuario", "Passware", "Identificaci\u00F3n", "Tipo documento", "Primer Nombre", "Segundo Nombre", "Primer Apellido", "Segundo Apellido", "Edad", "Direcci\u00F3n", "Tel\u00E9fono", "Rol", "Objecte"
+			}
+		));
+		scrollPane_usuario.setViewportView(table_usuario);
+		
+		JPanel panel_usuario = new JPanel();
+		panel_usuario.setBackground(SystemColor.activeCaption);
+		panel_usuario.setBounds(10, 61, 1119, 153);
+		contentPane_usuario.add(panel_usuario);
+		panel_usuario.setLayout(null);
+		
+		JLabel lblTipoDeDocumento = new JLabel("Tipo Documento");
+		lblTipoDeDocumento.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTipoDeDocumento.setBounds(10, 11, 102, 29);
+		panel_usuario.add(lblTipoDeDocumento);
+		
+		JComboBox comboBox_tipodocumento = new JComboBox();
+		comboBox_tipodocumento.setModel(new DefaultComboBoxModel(new String[] {"Cedula", "Tarjeta de Identidad", "Cedula de Extranjeria"}));
+		comboBox_tipodocumento.setBounds(122, 15, 137, 20);
+		panel_usuario.add(comboBox_tipodocumento);
+		
+		
+		JLabel lblIdentificacin = new JLabel("Identificaci\u00F3n");
+		lblIdentificacin.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblIdentificacin.setBounds(288, 11, 85, 29);
+		panel_usuario.add(lblIdentificacin);
+		
+		txt_identificacion = new JTextField();
+		txt_identificacion.setBounds(383, 15, 137, 20);
+		panel_usuario.add(txt_identificacion);
+		txt_identificacion.setColumns(10);
+		
+		JLabel lblPrimerNombre = new JLabel("Primer nombre");
+		lblPrimerNombre.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblPrimerNombre.setBounds(563, 11, 102, 29);
+		panel_usuario.add(lblPrimerNombre);
+		
+		txt_pri_nombre = new JTextField();
+		txt_pri_nombre.setColumns(10);
+		txt_pri_nombre.setBounds(675, 15, 137, 20);
+		panel_usuario.add(txt_pri_nombre);
+		
+		JLabel lblSegundoNombre = new JLabel("Segundo nombre");
+		lblSegundoNombre.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblSegundoNombre.setBounds(827, 11, 102, 29);
+		panel_usuario.add(lblSegundoNombre);
+		
+		txt_seg_nombre = new JTextField();
+		txt_seg_nombre.setColumns(10);
+		txt_seg_nombre.setBounds(939, 15, 137, 20);
+		panel_usuario.add(txt_seg_nombre);
+		
+		JLabel lblPrimerApellido = new JLabel("Primer apellido");
+		lblPrimerApellido.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblPrimerApellido.setBounds(20, 51, 92, 29);
+		panel_usuario.add(lblPrimerApellido);
+		
+		txt_pri_apelli = new JTextField();
+		txt_pri_apelli.setColumns(10);
+		txt_pri_apelli.setBounds(122, 55, 137, 20);
+		panel_usuario.add(txt_pri_apelli);
+		
+		JLabel lblSegundoApellido = new JLabel("Segundo apellido");
+		lblSegundoApellido.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblSegundoApellido.setBounds(271, 51, 102, 29);
+		panel_usuario.add(lblSegundoApellido);
+		
+		txt_seg_apell = new JTextField();
+		txt_seg_apell.setColumns(10);
+		txt_seg_apell.setBounds(383, 55, 137, 20);
+		panel_usuario.add(txt_seg_apell);
+		
+		JLabel lblUsuario = new JLabel("Usuario");
+		lblUsuario.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblUsuario.setBounds(573, 51, 92, 29);
+		panel_usuario.add(lblUsuario);
+		
+		txt_user = new JTextField();
+		txt_user.setColumns(10);
+		txt_user.setBounds(675, 55, 137, 20);
+		panel_usuario.add(txt_user);
+		
+		JLabel lblPassware = new JLabel("Passware");
+		lblPassware.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblPassware.setBounds(837, 51, 92, 29);
+		panel_usuario.add(lblPassware);
+		
+		txt_passw = new JTextField();
+		txt_passw.setColumns(10);
+		txt_passw.setBounds(939, 55, 137, 20);
+		panel_usuario.add(txt_passw);
+		
+		JLabel lblEdad = new JLabel("Edad");
+		lblEdad.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblEdad.setBounds(20, 85, 92, 29);
+		panel_usuario.add(lblEdad);
+		
+		txt_edad = new JTextField();
+		txt_edad.setColumns(10);
+		txt_edad.setBounds(122, 89, 137, 20);
+		panel_usuario.add(txt_edad);
+		
+		JLabel lblDireccin = new JLabel("Direcci\u00F3n");
+		lblDireccin.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblDireccin.setBounds(281, 91, 92, 29);
+		panel_usuario.add(lblDireccin);
+		
+		txt_direccion = new JTextField();
+		txt_direccion.setColumns(10);
+		txt_direccion.setBounds(383, 95, 137, 20);
+		panel_usuario.add(txt_direccion);
+		
+		JLabel lblTelfono = new JLabel("Tel\u00E9fono");
+		lblTelfono.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTelfono.setBounds(573, 91, 92, 29);
+		panel_usuario.add(lblTelfono);
+		
+		txt_telefono = new JTextField();
+		txt_telefono.setColumns(10);
+		txt_telefono.setBounds(675, 95, 137, 20);
+		panel_usuario.add(txt_telefono);
+		
+		JLabel lblRol = new JLabel("Rol");
+		lblRol.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblRol.setBounds(827, 91, 102, 29);
+		panel_usuario.add(lblRol);
+		
+		txt_id = new JTextField();
+		txt_id.setEditable(false);
+		txt_id.setBounds(122, 120, 43, 20);
+		panel_usuario.add(txt_id);
+		txt_id.setColumns(10);
+		
+		JLabel lblId = new JLabel("ID");
+		lblId.setBounds(88, 125, 24, 14);
+		panel_usuario.add(lblId);
+		
+		comboBox_RO = new JComboBox();
+		comboBox_RO.setBounds(939, 94, 137, 20);
+		panel_usuario.add(comboBox_RO);
+		try{
+		listaCombobox();
+		}catch(SQLException ex){
+			System.err.println(ex.getMessage());
+		}
+		
+		/**
+	     * boton para guardar registros 
+	     *
+	     * @return
+	     */
+		JButton btnGuardar = new JButton("Guardar");
+		btnGuardar.addActionListener(new ActionListener() {
+			
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				String Item_docu;
+				Item_docu = comboBox_tipodocumento.getSelectedItem().toString();
+				String usre = String.valueOf(txt_user.getText());
+				String passw = String.valueOf(txt_passw.getText());
+				String identificacion = String.valueOf(txt_identificacion.getText());
+				String primerNombre = String.valueOf(txt_pri_nombre.getText());
+				String segundoNombre = String.valueOf(txt_seg_nombre.getText());
+				String primerApellido = String.valueOf(txt_pri_apelli.getText());
+				String segundoApellido = String.valueOf(txt_seg_apell.getText());
+				String edad = String.valueOf(txt_edad.getText());
+				String direccion = String.valueOf(txt_direccion.getText());
+				String telefono = String.valueOf(txt_telefono.getText());
+				String Item_rol;
+				ObjetoRol obj = (ObjetoRol)comboBox_RO.getSelectedItem();
+				
+				
+					try {
+						validarCampos();
+						conexion = new DataConnection();
+						
+						conexion.insertarUsuario(usre,passw,Integer.parseInt(identificacion),Item_docu,primerNombre,segundoNombre,primerApellido,segundoApellido,Integer.parseInt(edad),direccion,Integer.parseInt(telefono), obj.getIdrol());
+						JOptionPane.showMessageDialog(null,"El usuario fue ingresado con exito");
+						actualizalista();
+						limpiar();
+						
+					
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null,"El usuario no fue ingresado");
+						e1.printStackTrace();
+					}
+				
+				
+				conexion.closeConexion();
+			}
+		});
+		
+		
+		
+		
+		btnGuardar.setBounds(941, 225, 89, 23);
+		contentPane_usuario.add(btnGuardar);
+		
+		JButton btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				limpiar(); 
+			}
+		});
+		btnCancelar.setBounds(1040, 225, 89, 23);
+		contentPane_usuario.add(btnCancelar);
+		
+		/**
+	     * boton para modificar registros 
+	     *
+	     * @return
+	     */
+		JButton btnModificar = new JButton("Modificar");
+		btnModificar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String idusuario = String.valueOf(txt_id.getText());
+				String Item_docu;
+				Item_docu = comboBox_tipodocumento.getSelectedItem().toString();
+				String usre = String.valueOf(txt_user.getText());
+				String passw = String.valueOf(txt_passw.getText());
+				String identificacion = String.valueOf(txt_identificacion.getText());
+				String primerNombre = String.valueOf(txt_pri_nombre.getText());
+				String segundoNombre = String.valueOf(txt_seg_nombre.getText());
+				String primerApellido = String.valueOf(txt_pri_apelli.getText());
+				String segundoApellido = String.valueOf(txt_seg_apell.getText());
+				String edad = String.valueOf(txt_edad.getText());
+				String direccion = String.valueOf(txt_direccion.getText());
+				String telefono = String.valueOf(txt_telefono.getText());
+				//String obj;
+				//Item_rol = comboBox_rol.getSelectedItem().toString();
+				ObjetoRol obj = (ObjetoRol)comboBox_RO.getSelectedItem(); 
+				
+				
+					try {
+						//validarcampos();
+						conexion = new DataConnection();
+						conexion.editarUsuario(Integer.parseInt(idusuario),usre,passw,Integer.parseInt(identificacion),Item_docu,primerNombre,segundoNombre,primerApellido,segundoApellido,Integer.parseInt(edad),direccion,Integer.parseInt(telefono),obj.getIdrol());
+						JOptionPane.showMessageDialog(null,"El usuario fue actualizado con exito");
+						actualizalista();
+						limpiar();
+						
+					
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null,"El usuario no fue actualizado");
+						e1.printStackTrace();
+					}
+				
+				
+				conexion.closeConexion();
+			}
+		});
+		btnModificar.setBounds(941, 423, 89, 23);
+		contentPane_usuario.add(btnModificar);
+		
+		/**
+	     * blton para eliminar registros 
+	     *
+	     * @return
+	     */
+		JButton btnEliminar = new JButton("Eliminar");
+		btnEliminar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int respuesta = JOptionPane.showConfirmDialog(null, "Seguro que quiere eliminar","Eliminar",JOptionPane.YES_NO_OPTION);
+				if(respuesta == JOptionPane.YES_NO_OPTION){
+					ObjetoUsuario user = (ObjetoUsuario)table_usuario.getModel().getValueAt(table_usuario.getSelectedRow(),13);
+					try {
+						conexion.eliminarUsuario(user.getIdusuario());
+						actualizalista();
+						limpiar();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					conexion.closeConexion();
+				}
+			}
+		});
+		btnEliminar.setBounds(1040, 423, 89, 23);
+		contentPane_usuario.add(btnEliminar);
+		
+		JLabel lblNewLabel = new JLabel("Datos del Usuario ");
+		lblNewLabel.setBounds(10, 36, 149, 14);
+		contentPane_usuario.add(lblNewLabel);
+		
+		JLabel lblListaDeUsuarios = new JLabel("Lista de Usuarios ");
+		lblListaDeUsuarios.setBounds(10, 229, 149, 14);
+		contentPane_usuario.add(lblListaDeUsuarios);
+		
+		/**
+	     * boton para cerrar la ventana
+	     *
+	     * @return
+	     */
+		JButton btnSalir = new JButton("Salir");
+		btnSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int respuesta = JOptionPane.showConfirmDialog(null, "Desea salir de esta ventana de Usuaro?","Salir",JOptionPane.YES_NO_OPTION);
+				if(respuesta == JOptionPane.YES_NO_OPTION){
+					
+					dispose();
+					conexion.closeConexion();
+				}
+			}
+		});
+		btnSalir.setBounds(826, 423, 89, 23);
+		contentPane_usuario.add(btnSalir);
+		
+		JPanel panel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
+		flowLayout.setAlignment(FlowLayout.RIGHT);
+		panel.setToolTipText("");
+		panel.setBackground(SystemColor.textHighlight);
+		panel.setBounds(0, 0, 1139, 36);
+		contentPane_usuario.add(panel);
+		
+		JLabel label = new JLabel("Solucionalo SAS");
+		label.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel.add(label);
+		
+		table_usuario.removeColumn(table_usuario.getColumn("Objecte"));
+		
+		/**
+	     * metodo para actualizar los campos de la tabla
+	     *
+	     * @return
+	     */
+		try {
+			
+			actualizalista();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	/**
+     * Metodo para visualizar por medio de filas los valores que hay como resultado de la consulta a la DB
+     *
+     * @return
+     */
+		private void listaCombobox()throws SQLException{
+			//Con el objeto Arraylis creado de la clase dataconeccion le envia los valores optenidos el la consulta a usuarios 
+			comboBox_RO.setModel(getComboboxModel(conexionRol.retornaRol()));
+		}
+		
+		private DefaultComboBoxModel<ObjetoRol> getComboboxModel(List<ObjetoRol> roles){
+			ObjetoRol[] comboboxModel = roles.toArray(new ObjetoRol[0]);
+			return new DefaultComboBoxModel<ObjetoRol>(comboboxModel);
+		}
+	
+	/**
+     * Metodo para visualizar por medio de filas los valores que hay como resultado de la consulta a la DB
+     *
+     * @return
+     */
+		void actualizalista()throws SQLException{
+			//Con el objeto Arraylis creado de la clase dataconeccion le envia los valores optenidos el la consulta a usuarios 
+			objetoUsuarioLis = conexion.retornaUsuario();
+			
+			DefaultTableModel modelo = (DefaultTableModel)table_usuario.getModel();
+			//Recorre cada uno de los registros obtenidos en la consulta retornausuario
+			while (modelo.getRowCount()>0)modelo.removeRow(0); 
+			int numcols = modelo.getColumnCount();
+			for(ObjetoUsuario usr:objetoUsuarioLis){
+				
+				Object[]fila = new Object[numcols];
+				fila[0]=usr.getIdusuario();
+				fila[1]=usr.getUsre();
+				fila[2]=usr.getPassw();
+				fila[3]=usr.getIdentificacion();
+				fila[4]=usr.getIdTipodocumento();
+				fila[5]=usr.getPrimerNombre();
+				fila[6]=usr.getSegundoNombre();
+				fila[7]=usr.getPrimerApellido();
+				fila[8]=usr.getSegundoApellido();
+				fila[9]=usr.getEdad();
+				fila[10]=usr.getDireccion();
+				fila[11]=usr.getTelefono();
+				fila[12]=usr.getRol();
+				fila[13]=usr;
+				modelo.addRow(fila);
+				
+				
+			}
+		
+		}
+		/**
+	     * metodo para limpiar los campos
+	     *
+	     * @return
+	     */
+		public void limpiar(){
+					txt_identificacion.setText("");
+					txt_user.setText("");
+					txt_passw.setText("");
+					txt_pri_nombre.setText("");
+					txt_seg_nombre.setText("");
+					txt_pri_apelli.setText("");
+					txt_seg_apell.setText("");
+					txt_edad.setText("");
+					txt_direccion.setText("");
+					txt_telefono.setText("");
+					txt_id.setText("");
+					txt_identificacion.requestFocus();
+				}
+		
+		/**
+	     * valida los campos obligatorios para la vista
+	     *
+	     * @return
+	     */
+	    private boolean validarCampos() {
+	        boolean flag = true;
+
+	        if (this.txt_identificacion.getText() == null || "".equals(this.txt_identificacion.getText().trim()) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo identifion es obligatorio");
+				txt_identificacion.requestFocus();
+	            flag = false;
+	        }
+
+	        if (this.txt_user.getText() == null || ("".equals(this.txt_user.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Usuario es obligatorio");
+				txt_user.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_passw.getText() == null || ("".equals(this.txt_passw.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Passware es obligatorio");
+				txt_passw.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_pri_nombre.getText() == null || ("".equals(this.txt_pri_nombre.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Primer Nombre es obligatorio");
+				txt_pri_nombre.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_seg_nombre.getText() == null || ("".equals(this.txt_seg_nombre.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Segundo Nombre es obligatorio");
+				txt_seg_nombre.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_pri_apelli.getText() == null || ("".equals(this.txt_pri_apelli.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Primer Apellido es obligatorio");
+				txt_pri_apelli.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_seg_apell.getText() == null || ("".equals(this.txt_seg_apell.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Segundo Apellido es obligatorio");
+				txt_seg_apell.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_edad.getText() == null || ("".equals(this.txt_edad.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Edad es obligatorio");
+				txt_edad.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_direccion.getText() == null || ("".equals(this.txt_direccion.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Direccion es obligatorio");
+				txt_direccion.requestFocus();
+	            flag = false;
+	        }
+	        if (this.txt_telefono.getText() == null || ("".equals(this.txt_telefono.getText().trim())) && flag) {
+	        	JOptionPane.showMessageDialog(null,"El campo Telefono es obligatorio");
+				txt_telefono.requestFocus();
+	            flag = false;
+	        }
+	        
+	        return flag;
+	    }
+	    
+}

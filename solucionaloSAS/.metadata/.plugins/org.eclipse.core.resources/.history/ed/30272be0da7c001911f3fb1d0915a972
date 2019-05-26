@@ -1,0 +1,32 @@
+package dataConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class Conection {
+	private Connection con;//se crea el objeto de conexion 
+	
+	public Conection(){
+		establecerConexion();		
+	}
+
+	private void establecerConexion() {
+		// TODO Auto-generated method stub
+		String host="localhost:3306";
+		String user="root";
+		String pass="12345678";
+		String dtbs="solucionalosas";
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			String newConectionURL="jdbc:mysql://"+host+"/"+dtbs+"?"+"user="+user+"&password"+pass;
+			con=DriverManager.getConnection(newConectionURL);
+			System.out.print("Hay coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error en la coneccion");
+		}
+		
+	}
+
+}

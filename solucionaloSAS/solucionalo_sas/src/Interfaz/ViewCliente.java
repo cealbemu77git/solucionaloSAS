@@ -1,0 +1,485 @@
+package Interfaz;
+
+import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import objetoUsuario.ObjetoCliente;
+import objetoUsuario.ObjetoUsuario;
+import dataConnection.DataCliente;
+
+public class ViewCliente extends JFrame {
+
+	private JPanel contentPane_cliente;
+	private JTextField txt_identificacion;
+	private JTextField txt_primernombre;
+	private JTextField txt_segundonombre;
+	private JTextField txt_primerapellido;
+	private JTextField txt_segundoapellido;
+	private JTextField txt_direccion;
+	private JTextField txt_telefono;
+	private JTable table_cliente;
+	private JTextField txt_id;
+	private ArrayList<ObjetoCliente> objetoClienteLis;
+	private static DataCliente conexion = new DataCliente();
+	private JTextField txt_fecha;
+	
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		
+		
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ViewCliente frame = new ViewCliente();
+					frame.setVisible(true);
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public ViewCliente() {
+		setTitle("Cliente");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 472);
+		contentPane_cliente = new JPanel();
+		contentPane_cliente.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane_cliente);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(5, 5, 774, 36);
+		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
+		flowLayout.setAlignment(FlowLayout.RIGHT);
+		panel.setToolTipText("");
+		panel.setBackground(SystemColor.textHighlight);
+		
+		JButton btn_cancelar = new JButton("Cancelar");
+		btn_cancelar.setBounds(620, 234, 115, 23);
+		
+		btn_cancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+				limpiar();
+			}
+		});
+		
+		JPanel panel__cliente = new JPanel();
+		panel__cliente.setBounds(15, 59, 754, 164);
+		panel__cliente.setBackground(SystemColor.activeCaption);
+		
+		JLabel lblDatosDelCliente = new JLabel("Datos del Cliente ");
+		lblDatosDelCliente.setBounds(15, 43, 149, 14);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(15, 266, 754, 110);
+		
+		JButton btnSalir = new JButton("Salir");
+		btnSalir.setBounds(423, 387, 75, 23);
+		btnSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int respuesta = JOptionPane.showConfirmDialog(null, "Desea salir de esta ventana de Clientes?","Salir",JOptionPane.YES_NO_OPTION);
+				if(respuesta == JOptionPane.YES_NO_OPTION){
+					
+					dispose();
+					conexion.closeConexion();
+				}
+			}
+		});
+		
+		JLabel lblListaDeCliente = new JLabel("Lista de Cliente ");
+		lblListaDeCliente.setBounds(15, 244, 149, 14);
+		
+		table_cliente = new JTable();
+		/**
+	     * evento clic para subir los datos de la tabla a los campos de texto 
+	     *
+	     * @return
+	     */
+		table_cliente.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				limpiar();
+				int col = table_cliente.getSelectedRow();
+				txt_id.setText(table_cliente.getModel().getValueAt(col, 0).toString());
+				txt_identificacion.setText(table_cliente.getModel().getValueAt(col, 2).toString());
+				txt_primernombre.setText(table_cliente.getModel().getValueAt(col, 3).toString());
+				txt_segundonombre.setText(table_cliente.getModel().getValueAt(col, 4).toString());
+				txt_primerapellido.setText(table_cliente.getModel().getValueAt(col, 5).toString());
+				txt_segundoapellido.setText(table_cliente.getModel().getValueAt(col, 6).toString());
+				txt_fecha.setText(table_cliente.getModel().getValueAt(col, 7).toString());
+				txt_direccion.setText(table_cliente.getModel().getValueAt(col, 8).toString());
+				txt_telefono.setText(table_cliente.getModel().getValueAt(col, 9).toString());
+			}
+		});
+		/**
+	     * campos de la tabla 
+	     *
+	     * @return
+	     */
+		table_cliente.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"Id", "Tipo documento", "Identificaci\u00F3n", "Primer Nombre", "Segundo Nombre", "Primer Apellido", "Segundo Apellido", "Fecha Nacimiento", "Direcci\u00F3n", "Tel\u00E9fono", "Objecte"
+			}
+		));
+		table_cliente.removeColumn(table_cliente.getColumn("Objecte"));
+		scrollPane.setViewportView(table_cliente);
+		panel__cliente.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("Tipo de documento");
+		lblNewLabel.setBounds(25, 14, 91, 14);
+		panel__cliente.add(lblNewLabel);
+		
+		JLabel lblIdentificacin = new JLabel("Identificaci\u00F3n");
+		lblIdentificacin.setBounds(237, 11, 91, 14);
+		panel__cliente.add(lblIdentificacin);
+		
+		txt_identificacion = new JTextField();
+		txt_identificacion.setBounds(237, 31, 116, 20);
+		panel__cliente.add(txt_identificacion);
+		txt_identificacion.setColumns(10);
+		
+		JLabel lblPrimerNombre = new JLabel("Primer nombre");
+		lblPrimerNombre.setBounds(424, 11, 91, 14);
+		panel__cliente.add(lblPrimerNombre);
+		
+		txt_primernombre = new JTextField();
+		txt_primernombre.setBounds(424, 31, 116, 20);
+		panel__cliente.add(txt_primernombre);
+		txt_primernombre.setColumns(10);
+		
+		JLabel lblSegundoNombre = new JLabel("Segundo nombre");
+		lblSegundoNombre.setBounds(603, 11, 91, 14);
+		panel__cliente.add(lblSegundoNombre);
+		
+		txt_segundonombre = new JTextField();
+		txt_segundonombre.setBounds(603, 31, 116, 20);
+		panel__cliente.add(txt_segundonombre);
+		txt_segundonombre.setColumns(10);
+		
+		JLabel lblPrimerApellido = new JLabel("Primer apellido");
+		lblPrimerApellido.setBounds(25, 62, 91, 14);
+		panel__cliente.add(lblPrimerApellido);
+		
+		txt_primerapellido = new JTextField();
+		txt_primerapellido.setBounds(25, 82, 135, 20);
+		panel__cliente.add(txt_primerapellido);
+		txt_primerapellido.setColumns(10);
+		
+		JLabel lblSegundoApellido = new JLabel("Segundo apellido");
+		lblSegundoApellido.setBounds(237, 62, 91, 14);
+		panel__cliente.add(lblSegundoApellido);
+		
+		txt_segundoapellido = new JTextField();
+		txt_segundoapellido.setBounds(237, 82, 116, 20);
+		panel__cliente.add(txt_segundoapellido);
+		txt_segundoapellido.setColumns(10);
+		
+		JLabel lblDireccion = new JLabel("Direccion");
+		lblDireccion.setBounds(424, 62, 91, 14);
+		panel__cliente.add(lblDireccion);
+		
+		txt_direccion = new JTextField();
+		txt_direccion.setBounds(424, 82, 116, 20);
+		panel__cliente.add(txt_direccion);
+		txt_direccion.setColumns(10);
+		
+		JLabel lblTelfono = new JLabel("Tel\u00E9fono");
+		lblTelfono.setBounds(603, 62, 91, 14);
+		panel__cliente.add(lblTelfono);
+		
+		txt_telefono = new JTextField();
+		txt_telefono.setBounds(603, 82, 116, 20);
+		panel__cliente.add(txt_telefono);
+		txt_telefono.setColumns(10);
+		
+		JLabel lblId = new JLabel("ID");
+		lblId.setBounds(35, 113, 20, 14);
+		panel__cliente.add(lblId);
+		
+		txt_id = new JTextField();
+		txt_id.setBounds(25, 129, 46, 20);
+		txt_id.setEditable(false);
+		panel__cliente.add(txt_id);
+		txt_id.setColumns(10);
+		
+		JComboBox comboBox_tipodocume = new JComboBox();
+		comboBox_tipodocume.setModel(new DefaultComboBoxModel(new String[] {"Cedula", "T Identidad", "Cedula Extranjera"}));
+		comboBox_tipodocume.setBounds(25, 31, 135, 20);
+		panel__cliente.add(comboBox_tipodocume);
+		contentPane_cliente.setLayout(null);
+		
+		JLabel lblNewLabel_1 = new JLabel("Solucionalo SAS");
+		panel.add(lblNewLabel_1);
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		contentPane_cliente.add(panel);
+		contentPane_cliente.add(lblDatosDelCliente);
+		contentPane_cliente.add(panel__cliente);
+		
+		txt_fecha = new JTextField();
+		txt_fecha.setBounds(237, 129, 116, 20);
+		panel__cliente.add(txt_fecha);
+		txt_fecha.setColumns(10);
+		
+		JLabel lblFechaNacimiento = new JLabel("Fecha Nacimiento");
+		lblFechaNacimiento.setBounds(237, 113, 116, 14);
+		panel__cliente.add(lblFechaNacimiento);
+		contentPane_cliente.add(scrollPane);
+		contentPane_cliente.add(lblListaDeCliente);
+		contentPane_cliente.add(btn_cancelar);
+		contentPane_cliente.add(btnSalir);
+		
+		JButton btnGuardar = new JButton("Guardar");
+		btnGuardar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String Item;
+				Item = comboBox_tipodocume.getSelectedItem().toString();
+				String identificacion = String.valueOf(txt_identificacion.getText());
+				String primernombre = String.valueOf(txt_primernombre.getText());
+				String segundonombre = String.valueOf(txt_segundonombre.getText());
+				String primerapellido = String.valueOf(txt_primerapellido.getText());
+				String segundoapellido = String.valueOf(txt_segundoapellido.getText());
+				String direccion = String.valueOf(txt_direccion.getText());
+				String telefono = String.valueOf(txt_telefono.getText());
+				String fechanacimiento = String.valueOf(txt_fecha.getText());
+				//Date fechanacimiento = (Date) Calendar.getInstance().getTime();
+				//SimpleDateFormat sdf = new SimpleDateFormat("Edd/MM/yyy");
+				//txt_fecha.setText(sdf.format(fechanacimiento)); 
+				
+				
+					try {
+						validarCampos();
+						conexion = new DataCliente();
+						
+						conexion.insertarCliente(Item,Integer.parseInt(identificacion), primernombre, segundonombre, primerapellido, segundoapellido,fechanacimiento, direccion,Integer.parseInt(telefono));
+						JOptionPane.showMessageDialog(null,"El cliente fue ingresado con exito");
+						actualizalista();
+						limpiar();
+						
+					
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null,"El cliente no fue ingresado");
+						e1.printStackTrace();
+					}
+				
+				
+				conexion.closeConexion();
+				
+			}
+		});
+		btnGuardar.setBounds(485, 234, 115, 23);
+		contentPane_cliente.add(btnGuardar);
+		
+		JButton btnModificar = new JButton("Modificar");
+		btnModificar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String idcliente = String.valueOf(txt_id.getText());
+				String Item;
+				Item = comboBox_tipodocume.getSelectedItem().toString();
+				String identificacion = String.valueOf(txt_identificacion.getText());
+				String primernombre = String.valueOf(txt_primernombre.getText());
+				String segundonombre = String.valueOf(txt_segundonombre.getText());
+				String primerapellido = String.valueOf(txt_primerapellido.getText());
+				String segundoapellido = String.valueOf(txt_segundoapellido.getText());
+				String direccion = String.valueOf(txt_direccion.getText());
+				String telefono = String.valueOf(txt_telefono.getText());
+				String fechanacimiento = String.valueOf(txt_fecha.getText());
+				
+				
+					try {
+						validarCampos();
+						conexion = new DataCliente();
+						
+						conexion.editarCliente(Integer.parseInt(idcliente),Item,Integer.parseInt(identificacion), primernombre, segundonombre, primerapellido, segundoapellido,fechanacimiento, direccion,Integer.parseInt(telefono));
+						JOptionPane.showMessageDialog(null,"El cliente fue actualizado con exito");
+						actualizalista();
+						limpiar();
+						
+					
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null,"El cliente no fue actualizado");
+						e1.printStackTrace();
+					}
+				
+				
+				conexion.closeConexion();
+			}
+		});
+		btnModificar.setBounds(526, 387, 115, 23);
+		contentPane_cliente.add(btnModificar);
+		
+		JButton btnEliminar = new JButton("Eliminar");
+		btnEliminar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int respuesta = JOptionPane.showConfirmDialog(null, "Seguro que quiere eliminar","Eliminar",JOptionPane.YES_NO_OPTION);
+				if(respuesta == JOptionPane.YES_NO_OPTION){
+					ObjetoCliente user = (ObjetoCliente)table_cliente.getModel().getValueAt(table_cliente.getSelectedRow(),10);
+					try {
+						conexion.eliminarCliente(user.getIdcliente());
+						actualizalista();
+						limpiar();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					conexion.closeConexion();
+				}
+			}
+		});
+		btnEliminar.setBounds(651, 387, 118, 23);
+		contentPane_cliente.add(btnEliminar);
+		
+		
+		/**
+	     * metodo para actualizar los campos de la tabla
+	     *
+	     * @return
+	     */
+		try {
+			
+			actualizalista();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
+	/**
+     * Metodo para visualizar por medio de filas los valores que hay como resultado de la consulta a la DB
+     *
+     * @return
+     */
+		void actualizalista()throws SQLException{
+			//Con el objeto Arraylis creado de la clase dataconeccion le envia los valores optenidos el la consulta a usuarios 
+			objetoClienteLis = conexion.retornaCliente();
+			
+			DefaultTableModel modelo = (DefaultTableModel)table_cliente.getModel();
+			//Recorre cada uno de los registros obtenidos en la consulta retornacliente
+			while (modelo.getRowCount()>0)modelo.removeRow(0); 
+			int numcols = modelo.getColumnCount();
+			for(ObjetoCliente usr:objetoClienteLis){
+				Object[]fila = new Object[numcols];
+				fila[0]=usr.getIdcliente();
+				fila[1]=usr.getIdTipodocumento();
+				fila[2]=usr.getIdentificacion();
+				fila[3]=usr.getPrimernombre();
+				fila[4]=usr.getSegundonombre();
+				fila[5]=usr.getPrimerapellido();
+				fila[6]=usr.getSegundoapellido();
+				fila[7]=usr.getFechanacimiento();
+				fila[8]=usr.getDireccion();
+				fila[9]=usr.getTelefono();
+				fila[10]=usr;
+				modelo.addRow(fila);
+				
+				
+			}
+		
+		}
+	
+	/**
+     * metodo para limpiar los campos
+     *
+     * @return
+     */
+	public void limpiar(){
+				txt_identificacion.setText("");
+				txt_primernombre.setText("");
+				txt_segundonombre.setText("");
+				txt_primerapellido.setText("");
+				txt_segundoapellido.setText("");
+				txt_direccion.setText("");
+				txt_telefono.setText("");
+				txt_fecha.setText("");
+				txt_id.setText("");
+				txt_identificacion.requestFocus();
+			}
+	
+	/**
+     * valida los campos obligatorios para la vista
+     *
+     * @return
+     */
+    private boolean validarCampos() {
+        boolean flag = true;
+
+        if (this.txt_identificacion.getText() == null || "".equals(this.txt_identificacion.getText().trim()) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo identifion es obligatorio");
+			txt_identificacion.requestFocus();
+            flag = false;
+        }
+        if (this.txt_primernombre.getText() == null || ("".equals(this.txt_primernombre.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo Primer Nombre es obligatorio");
+        	txt_primernombre.requestFocus();
+            flag = false;
+        }
+        if (this.txt_segundonombre.getText() == null || ("".equals(this.txt_segundonombre.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo Segundo Nombre es obligatorio");
+        	txt_segundonombre.requestFocus();
+            flag = false;
+        }
+        if (this.txt_primerapellido.getText() == null || ("".equals(this.txt_primerapellido.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo Primer Apellido es obligatorio");
+        	txt_primerapellido.requestFocus();
+            flag = false;
+        }
+        if (this.txt_segundoapellido.getText() == null || ("".equals(this.txt_segundoapellido.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo Segundo Apellido es obligatorio");
+        	txt_segundoapellido.requestFocus();
+            flag = false;
+        }
+        if (this.txt_direccion.getText() == null || ("".equals(this.txt_direccion.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo Direccion es obligatorio");
+			txt_direccion.requestFocus();
+            flag = false;
+        }
+        if (this.txt_telefono.getText() == null || ("".equals(this.txt_telefono.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo Telefono es obligatorio");
+			txt_telefono.requestFocus();
+            flag = false;
+        }
+        if (this.txt_fecha.getText() == null || ("".equals(this.txt_fecha.getText().trim())) && flag) {
+        	JOptionPane.showMessageDialog(null,"El campo fecha es obligatorio");
+        	txt_fecha.requestFocus();
+            flag = false;
+        }
+        return flag;
+    }
+}

@@ -1,0 +1,96 @@
+package Interfaz;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
+
+public class menu extends JFrame {
+
+	private JPanel contentPane;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					menu frame = new menu();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public menu() {
+		setTitle("Menu");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnAdministrador = new JMenu("Administrador");
+		menuBar.add(mnAdministrador);
+		
+		JMenuItem mntmCliente = new JMenuItem("cliente");
+		mnAdministrador.add(mntmCliente);
+		
+		JMenuItem mntmReparacion = new JMenuItem("Reparac\u00F3n");
+		mnAdministrador.add(mntmReparacion);
+		
+		JMenuItem mntmTipoArreglo = new JMenuItem("Tipo Arreglo");
+		mnAdministrador.add(mntmTipoArreglo);
+		
+		JMenuItem mntmUsuario = new JMenuItem("Usuario");
+		mnAdministrador.add(mntmUsuario);
+		
+		JMenuItem mntmConsultaCliente = new JMenuItem("Consulta Cliente");
+		mnAdministrador.add(mntmConsultaCliente);
+		
+		JMenuItem mntmInformeReparacin = new JMenuItem("Informe Reparaci\u00F3n");
+		mnAdministrador.add(mntmInformeReparacin);
+		
+		JMenuItem menusalir = new JMenuItem("Salir");
+		menusalir.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				menu men = new menu();
+				men.setVisible(true);
+				
+			}
+			
+		});
+		menuBar.add(menusalir);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		GroupLayout gl_contentPane = new GroupLayout(contentPane);
+		gl_contentPane.setHorizontalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGap(0, 424, Short.MAX_VALUE)
+		);
+		gl_contentPane.setVerticalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addGap(0, 251, Short.MAX_VALUE)
+		);
+		contentPane.setLayout(gl_contentPane);
+	}
+
+}

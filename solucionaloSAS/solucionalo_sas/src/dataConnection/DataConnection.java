@@ -1,0 +1,173 @@
+package dataConnection;
+
+import java.io.ObjectInputStream.GetField;
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
+
+import objetoUsuario.ObjetoRol;
+import objetoUsuario.ObjetoUsuario;
+
+
+
+public class DataConnection {
+	
+	private Connection con;
+	
+	public DataConnection(){
+		performConnection();
+	}
+
+	private void performConnection() {
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			System.out.print("Hay coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error en la coneccion"); 
+		}
+		
+	}
+	/**
+	 * Vamos a obtener la conexion siempre que utilicemos a con
+	 * @throws SQLException 
+	 *
+	 */
+	
+	private Connection getConnection() throws SQLException{
+		String host="localhost:3306";
+		String user="root";
+		String pass="12345678";
+		String dtbs="solucionalosas";
+		String newConectionURL="jdbc:mysql://"+host+"/"+dtbs;
+		return DriverManager.getConnection(newConectionURL,user,pass);
+	}
+	
+	/*
+	 * metodo para cerrar la conexion 
+	 */
+	public void closeConexion(){
+		try {
+			con.close();
+			System.out.print("Se a cerrado coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error al cerrar la coneccion");
+		}
+		
+	}
+	
+	//metodo que nos permita loguearnos para entrar a la aplicacion 
+	public boolean conectarUsuario(String usre,String passw)throws SQLException{
+		con  = getConnection();
+		String selection = "SELECT * FROM usuario WHERE user=? and passware=? ";
+		PreparedStatement ps = con.prepareStatement(selection);
+		ps.setString(1, usre);
+		ps.setString(2, passw);
+		ResultSet rs = ps.executeQuery();
+		rs.close();
+		return rs.next();
+	}
+	
+	//este es un arreglo para consultar los datos de la tabla Usuario de DB
+		public ArrayList<ObjetoUsuario> retornaUsuario()throws SQLException{
+			con  = getConnection();
+			ArrayList<ObjetoUsuario> ls = new ArrayList<ObjetoUsuario>();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM usuario");
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				ObjetoUsuario a = new ObjetoUsuario(rs.getInt("idusuario") ,rs.getString("user") ,rs.getString("passware") ,rs.getInt("identificacion") ,rs.getString("idtipodocumento") ,rs.getString("primernombre") ,rs.getString("segundonombre") , rs.getString("primerapellido"), rs.getString("segundoapellido"),rs.getInt("edad") , rs.getString("direccion"), rs.getInt("telefono"),rs.getInt("idrol"));
+				ls.add(a);
+			}
+			rs.close();
+			return ls;
+		}
+		//lesta es la instruccion para eliminar 
+		public void eliminarUsuario(int idusuario) throws SQLException{
+			con  = getConnection();
+			String selection = "DELETE FROM usuario WHERE idusuario = ?";
+			PreparedStatement ps = con.prepareStatement(selection);
+			ps.setInt(1, idusuario);
+			ps.executeUpdate();
+			con.close();
+		}
+		//esta es la instruccion para insertar los datos de la tabla usuario en la DB
+		public void insertarUsuario(String usre,String passw,int identificacion,String idTipodocumento,String primerNombre,String segundoNombre,String primerApellido,String segundoApellido,int edad,String direccion,int telefono,int rol) throws SQLException{
+			con  = getConnection();
+			//tener pendiente que los campos sean los mismos de la DB
+			String selection = "INSERT INTO usuario(user,passware,identificacion,idtipodocumento,primernombre,segundonombre,primerapellido,segundoapellido,edad,direccion,telefono,idrol)"+"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+			PreparedStatement ps = con.prepareStatement(selection);
+			//aqui los campos son los del objeto
+			//ps.setInt(1, idusuario);
+			ps.setString(1, usre);
+			ps.setString(2, passw);
+			ps.setInt(3, identificacion);
+			ps.setString(4, idTipodocumento);
+			ps.setString(5, primerNombre);
+			ps.setString(6, segundoNombre);
+			ps.setString(7, primerApellido);
+			ps.setString(8, segundoApellido);
+			ps.setInt(9, edad);
+			ps.setString(10, direccion);
+			ps.setInt(11, telefono);
+			ps.setInt(12, rol);
+			ps.executeUpdate();
+			
+			//ps.close();
+			con.close();
+			
+		}
+		
+		//esta es la intruccino para editar los datos de la tabla usuario DB
+		public void editarUsuario(int idusuario,String usre,String passw,int identificacion,String idTipodocumento,String primerNombre,String segundoNombre,String primerApellido,String segundoApellido,int edad,String direccion,int telefono,int rol)throws SQLException{
+			con  = getConnection();
+			String selection = "UPDATE usuario SET user =?,passware =?,identificacion =?,idtipodocumento =?,primernombre =?,segundonombre =?,primerapellido =?,segundoapellido =?,edad =?,direccion =?,telefono =?,idrol =? WHERE idusuario =?";
+			PreparedStatement ps = con.prepareStatement(selection);
+			ps.setString(1, usre);
+			ps.setString(2, passw);
+			ps.setInt(3, identificacion);
+			ps.setString(4, idTipodocumento);
+			ps.setString(5, primerNombre);
+			ps.setString(6, segundoNombre);
+			ps.setString(7, primerApellido);
+			ps.setString(8, segundoApellido);
+			ps.setInt(9, edad);
+			ps.setString(10, direccion);
+			ps.setInt(11, telefono);
+			ps.setInt(12, rol);
+			ps.setInt(13, idusuario);
+			ps.executeUpdate();
+			
+			con.close();
+		}
+		/**
+	     * Metodo para visualizar por medio de filas los valores que hay como resultado de la consulta a la DB
+	     *
+	     * @return
+	     */
+					
+			//este es un arreglo para consultar los datos de la tabla rol de DB
+			public ArrayList<ObjetoRol> listarRol()throws SQLException{
+				con  = getConnection();
+				ArrayList<ObjetoRol> ls = new ArrayList<ObjetoRol>();
+				PreparedStatement ps = con.prepareStatement("SELECT * FROM rol");
+				ResultSet rs = ps.executeQuery();
+				while (rs.next()) {
+					ObjetoRol a = new ObjetoRol(rs.getInt("idrol") ,rs.getString("codigo"),rs.getString("descripcion"));
+					ls.add(a);
+				}
+				rs.close();
+				return ls;
+			}
+			
+			
+
+		
+}

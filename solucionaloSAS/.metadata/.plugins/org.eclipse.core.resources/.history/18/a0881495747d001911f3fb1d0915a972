@@ -1,0 +1,18 @@
+package dataConnection;
+
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class DataConsultaCliente {
+	
+	Conection con = null;
+	ResultSet rs = null;
+	PreparedStatement pst = null;
+	CallableStatement call = null;
+	
+	
+	
+	
+
+}

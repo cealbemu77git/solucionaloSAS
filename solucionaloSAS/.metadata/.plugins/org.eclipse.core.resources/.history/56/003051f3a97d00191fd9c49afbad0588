@@ -1,0 +1,75 @@
+package dataConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import objetoUsuario.ObjetoConsultaCliente;
+import objetoUsuario.ObjetoUsuario;
+
+
+public class DataConsultaCliente {
+	
+private Connection con;
+	
+	public DataConsultaCliente(){
+		performConnection();
+	}
+
+	private void performConnection() {
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			System.out.print("Hay coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error en la coneccion"); 
+		}
+		
+	}
+	/**
+	 * Vamos a obtener la conexion siempre que utilicemos a con
+	 * @throws SQLException 
+	 *
+	 */
+	
+	private Connection getConnection() throws SQLException{
+		String host="localhost:3306";
+		String user="root";
+		String pass="12345678";
+		String dtbs="solucionalosas";
+		String newConectionURL="jdbc:mysql://"+host+"/"+dtbs;
+		return DriverManager.getConnection(newConectionURL,user,pass);
+	}
+	
+	/*
+	 * metodo para cerrar la conexion 
+	 */
+	public void closeConexion(){
+		try {
+			con.close();
+			System.out.print("Se a cerrado coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error al cerrar la coneccion");
+		}
+		
+	}
+	//este es un arreglo para consultar los datos de la tabla Usuario de DB
+			public ArrayList<ObjetoConsultaCliente> retornaUsuario()throws SQLException{
+				con  = getConnection();
+				ArrayList<ObjetoConsultaCliente> ls = new ArrayList<ObjetoConsultaCliente>();
+				PreparedStatement ps = con.prepareStatement("SELECT * FROM usuario");
+				ResultSet rs = ps.executeQuery();
+				while (rs.next()) {
+					ObjetoConsultaCliente a = new ObjetoConsultaCliente();
+					ls.add(a);
+				}
+				rs.close();
+				return ls;
+			}
+
+}

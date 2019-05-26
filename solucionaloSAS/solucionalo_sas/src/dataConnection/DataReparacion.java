@@ -1,0 +1,114 @@
+package dataConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import objetoUsuario.ObjetoReparacion;
+
+public class DataReparacion {
+
+private Connection con;
+	
+	public DataReparacion(){
+		performConnection();
+	}
+
+	private void performConnection() {
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			System.out.print("Hay coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error en la coneccion"); 
+		}
+		
+	}
+	/**
+	 * Vamos a obtener la conexion siempre que utilicemos a con
+	 * @throws SQLException 
+	 *
+	 */
+	
+	private Connection getConnection() throws SQLException{
+		String host="localhost:3306";
+		String user="root";
+		String pass="12345678";
+		String dtbs="solucionalosas";
+		String newConectionURL="jdbc:mysql://"+host+"/"+dtbs;
+		return DriverManager.getConnection(newConectionURL,user,pass);
+	}
+	
+	/*
+	 * metodo para cerrar la conexion 
+	 */
+	public void closeConexion(){
+		try {
+			con.close();
+			System.out.print("Se a cerrado coneccion");
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.print("Error al cerrar la coneccion");
+		}
+		
+	}
+	
+	
+	//este es un arreglo para consultar los datos de la tabla reparaciones de DB
+		public ArrayList<ObjetoReparacion> retornaReparacion()throws SQLException{
+			con  = getConnection();
+			ArrayList<ObjetoReparacion> ls = new ArrayList<ObjetoReparacion>();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM reparaciones");
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				ObjetoReparacion a = new ObjetoReparacion(rs.getInt("idreparaciones") ,rs.getInt("idtipoarreglo") ,rs.getInt("valor") ,rs.getString("garantia") ,rs.getString("observacion"));
+				ls.add(a);
+			}
+			rs.close();
+			return ls;
+		}
+		//lesta es la instruccion para eliminar 
+		public void eliminarReparacion(int idreparaciones) throws SQLException{
+			con  = getConnection();
+			String selection = "DELETE FROM reparaciones WHERE idreparaciones = ?";
+			PreparedStatement ps = con.prepareStatement(selection);
+			ps.setInt(1, idreparaciones);
+			ps.executeUpdate();
+			con.close();
+		}
+		//esta es la instruccion para insertar los datos de la tabla usuario en la DB
+		public void insertarReparacion(int idtipoarreglo,int valor,String garantia,String observacion) throws SQLException{
+			con  = getConnection();
+			//tener pendiente que los campos sean los mismos de la DB
+			String selection = "INSERT INTO reparaciones(idtipoarreglo,valor,garantia,observacion)"+"VALUES(?,?,?,?)";
+			PreparedStatement ps = con.prepareStatement(selection);
+			//aqui los campos son los del objeto
+			ps.setInt(1, idtipoarreglo);
+			ps.setInt(2, valor);
+			ps.setString(3, garantia);
+			ps.setString(4, observacion);
+			ps.executeUpdate();
+			
+			con.close();
+			
+		}
+		
+		//esta es la intruccino para editar los datos de la tabla usuario DB
+		public void editarReparacion(int idreparaciones,int idtipoarreglo,int valor,String garantia,String observacion)throws SQLException{
+			con  = getConnection();
+			String selection = "UPDATE reparaciones SET idtipoarreglo =?,valor =?,garantia =?,observacion =? WHERE idreparaciones =?";
+			PreparedStatement ps = con.prepareStatement(selection);
+			ps.setInt(1, idtipoarreglo);
+			ps.setInt(2, valor);
+			ps.setString(3, garantia);
+			ps.setString(4, observacion);
+			ps.setInt(5, idreparaciones);
+			ps.executeUpdate();
+			
+			con.close();
+		}
+}
